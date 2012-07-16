@@ -6,6 +6,8 @@
 
     <title><%= @app['name'] %></title>
     <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
 
     <!--[if IEMobile]>
@@ -26,6 +28,8 @@
     <meta property="fb:app_id" content="<%= @app['name'] %>" />
 
     <script type="text/javascript" src="/javascripts/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+
 
     <script type="text/javascript">
       function logResponse(response) {
@@ -91,7 +95,8 @@
       </script>
     <![endif]-->
   </head>
-  <body>
+  <body style="width:100%">
+  <div class="container">
     <div id="fb-root"></div>
     <script type="text/javascript">
       window.fbAsyncInit = function() {
@@ -117,7 +122,7 @@
         FB.Canvas.setAutoGrow();
       };
 
-      // Load the SDK Asynchronously
+      // Load the SD K Asynchronously
       (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) return;
@@ -127,141 +132,78 @@
       }(document, 'script', 'facebook-jssdk'));
     </script>
 
-    <header class="clearfix">
+    <header class="hero-unit">
+    <div style="display:inline-block;width:50%">
       <% if @user %>
           <p id="picture" style="background-image: url(https://graph.facebook.com/<%= @user['id'] %>/picture?type=normal)"></p>
-          <div>
-            <h1>Welcome, <strong><%= @user['name'] %></strong></h1>
-            <p class="tagline">
-              This is your app
-              <a href="<%= @app['@app'] %>"><%= @app['name'] %></a>
-            </p>
-            <div id="share-app">
-              <p>Share your app:</p>
-              <ul>
-                <li>
+            <h2>Welcome, <strong><%= @user['name'] %></strong></h2>
+            <div id="">
+              <p>Share this app on facebook</p>
+
                   <a href="#" class="facebook-button" id="postToWall" data-url="<%= url %>">
                     <span class="plus">Post to Wall</span>
                   </a>
-                </li>
-                <li>
+
                   <a href="#" class="facebook-button speech-bubble" id="sendToFriends" data-url="<%= url %>">
                     <span class="speech-bubble">Send Message</span>
                   </a>
-                </li>
-                <li>
-                  <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Test this awesome app">
+
+                  <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Try this app to find the fellow runners for Hyderabad relay marathon">
                     <span class="apprequests">Send Requests</span>
                   </a>
-                </li>
-              </ul>
-            </div>
           </div>
       <% else %>
         <div>
-          <h1>Welcome</h1>
+          <h3>Welcome to Hyderabad Marathon facebook app.</h3>
             <a href='/auth/facebook' class="fb_button fb_button_medium">
               <span class="fb_button_text">Log In</span>
             </a>
         </div>
 
       <% end %>
+    	</div>
+    	<div style="display:inline-block">
+    	</div>
     </header>
 
-    <section id="get-started">
-      <p>Welcome to your Facebook app, running on <span>heroku</span>!</p>
-      <a href="https://devcenter.heroku.com/articles/facebook?utm_source=facebook&utm_medium=app&utm_campaign=fb_integration" target="_top" class="button">Learn How to Edit This App</a>
-    </section>
-
-
     <% if @user %>
-    <section id="samples" class="clearfix">
-          <h1>Examples of the Facebook Graph API</h1>
+    <div class="well">
+    <div id="span9" class="clearfix">
+          <h2>Join with your friends and form a realy marathon team!!</h2>
 
-          <div class="list">
+		<div class="span6">
+            <div class="row"><h3>Teams</h3>
+            <ul class="things">
+              <% @teams.each do |team| %>
+                <li>
+                  <a href="#" onclick="window.open('team/<%= team['id'] %>')">                    
+                    <%= team['name'] %>
+                  </a>
+                </li>
+              <% end %>
+            </ul>
+        	</div>
+        </div>
+          
+          <div class="span4">
             <h3>A few of your friends</h3>
             <ul class="friends">
               <% @friends.each do |friend| %>
                 <li>
-                  <a href="#" onclick="window.open('http://www.facebook.com/<%= friend['id']%>')">
-                    <img src="https://graph.facebook.com/<%= friend['id'] %>/picture?type=square" alt="<%= friend['name'] %>">
+                  <a href="#" onclick="window.open('http://www.facebook.com/<%= friend['facebook_id']%>')">
+                    <img src="https://graph.facebook.com/<%= friend['facebook_id'] %>/picture?type=square" alt="<%= friend['name'] %>">
                     <%= friend['name'] %>
                   </a>
                 </li>
               <% end %>
             </ul>
           </div>
-
-          <div class="list inline">
-            <h3>Recent photos</h3>
-            <ul class="photos">
-              <% @photos.each_with_index do |photo, index| %>
-                <li style="background-image: url(<%= photo['picture'] %>)" class='<%= 'first-column' if (index%4).zero? %>'>
-                  <a href="#" onclick="window.open('http://www.facebook.com/<%= photo['id'] %>')">
-                    <%= photo['name'] %>
-                  </a>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-
-          <div class="list">
-            <h3>Things you like</h3>
-            <ul class="things">
-              <% @likes.each do |like| %>
-                <li>
-                  <a href="#" onclick="window.open('http://www.facebook.com/<%= like['id'] %>')">
-                    <img src="https://graph.facebook.com/<%= like['id'] %>/picture?type=square" alt="<%= like['name'] %>">
-                    <%= like['name'] %>
-                  </a>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-
-          <div class="list">
-            <h3>Friends using this app</h3>
-            <ul class="friends">
-              <% @friends_using_app.each do |friend_result| %>
-                <li>
-                  <a href="#" onclick="window.open('http://www.facebook.com/<%= friend_result['uid'] %>')">
-                    <img src="<%= friend_result['pic_square'] %>" alt="<%= friend_result['name'] %>">
-                    <%= friend_result['name'] %>
-                  </a>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        </section>
+        </div>
     <% end %>
+	</div>
 
-
-    <section id="guides" class="clearfix">
-      <h1>Learn More About Heroku &amp; Facebook Apps</h1>
-      <ul>
-        <li>
-          <a href="https://www.heroku.com/?utm_source=facebook&utm_medium=app&utm_campaign=fb_integration" target="_top" class="icon heroku">Heroku</a>
-          <p>Learn more about <a href="https://www.heroku.com/?utm_source=facebook&utm_medium=app&utm_campaign=fb_integration" target="_top">Heroku</a>, or read developer docs in the Heroku <a href="https://devcenter.heroku.com/" target="_top">Dev Center</a>.</p>
-        </li>
-        <li>
-          <a href="https://developers.facebook.com/docs/guides/web/" target="_top" class="icon websites">Websites</a>
-          <p>
-            Drive growth and engagement on your site with
-            Facebook Login and Social Plugins.
-          </p>
-        </li>
-        <li>
-          <a href="https://developers.facebook.com/docs/guides/mobile/" target="_top" class="icon mobile-apps">Mobile Apps</a>
-          <p>
-            Integrate with our core experience by building apps
-            that operate within Facebook.
-          </p>
-        </li>
-        <li>
-          <a href="https://developers.facebook.com/docs/guides/canvas/" target="_top" class="icon apps-on-facebook">Apps on Facebook</a>
-          <p>Let users find and connect to their friends in mobile apps and games.</p>
-        </li>
-      </ul>
-    </section>
+    <div id="span4" class="clearfix">
+    </div>
+    <div>
   </body>
 </html>

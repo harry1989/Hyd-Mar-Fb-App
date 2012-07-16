@@ -1,5 +1,11 @@
 require "sinatra"
 require 'koala'
+require 'rubygems'                                                                                                                                                                             
+require 'sinatra'
+#require 'data_mapper'
+#require 'dm-migrations'
+require 'dm-core'
+require 'dm-timestamps'
 
 enable :sessions
 set :raise_errors, false
@@ -12,7 +18,7 @@ set :show_exceptions, false
 # permissions your app needs.
 # See https://developers.facebook.com/docs/reference/api/permissions/
 # for a full list of permissions
-FACEBOOK_SCOPE = 'user_likes,user_photos,user_photo_video_tags'
+FACEBOOK_SCOPE = ''
 
 unless ENV["FACEBOOK_APP_ID"] && ENV["FACEBOOK_SECRET"]
   abort("missing env vars: please set FACEBOOK_APP_ID and FACEBOOK_SECRET with your app credentials")
@@ -48,11 +54,30 @@ helpers do
 
 end
 
+DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/development.db")                                                                                                       
+
+class User
+  include DataMapper::Resource
+  property :id,           Serial
+  property :name,         String
+  property :facebook_id,  String
+  property :updated_at,   DateTime
+end
+
+class Team
+  include DataMapper::Resource
+  property :id,           Serial
+  property :name,        String
+end
+
 # the facebook session expired! reset ours and restart the process
 error(Koala::Facebook::APIError) do
   session[:access_token] = nil
   redirect "/auth/facebook"
 end
+
+DataMapper.auto_upgrade!
+
 
 get "/" do
   # Get base API Connection
@@ -63,9 +88,11 @@ get "/" do
 
   if session[:access_token]
     @user    = @graph.get_object("me")
-    @friends = @graph.get_connections('me', 'friends')
+    app_user = User.first_or_create(:name => @user['name'], :facebook_id => @user['id'])
+    @friends = User.all
     @photos  = @graph.get_connections('me', 'photos')
     @likes   = @graph.get_connections('me', 'likes').first(4)
+    @teams   = Team.all
 
     # for other data you can always run fql
     @friends_using_app = @graph.fql_query("SELECT uid, name, is_app_user, pic_square FROM user WHERE uid in (SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1")
@@ -78,15 +105,28 @@ post "/" do
   redirect "/"
 end
 
+# View a team
+get '/team/:id' do
+  @task = Team.get(params[:id])
+  erb :team
+end
+
 # used to close the browser window opened to post to wall/send to friends
 get "/close" do
   "<body onload='window.close();'/>"
 end
 
+
+get "/team" do
+  "<body onload='window.close();'/>"
+end
+
+
 get "/sign_out" do
   session[:access_token] = nil
   redirect '/'
 end
+
 
 get "/auth/facebook" do
   session[:access_token] = nil
@@ -95,5 +135,16 @@ end
 
 get '/auth/facebook/callback' do
 	session[:access_token] = authenticator.get_access_token(params[:code])
+	@graph  = Koala::Facebook::API.new(session[:access_token])
+	@user   = @graph.get_object("me")
+	user    = User.first_or_create(:name => @user['name'], :facebook_id => @user['id'])
+	puts "Created the new user %s", %(user['name'])
 	redirect '/'
+end
+
+
+# View a team
+get '/team/:id' do
+  @task = Team.get(params[:id])
+  erb :team
 end
