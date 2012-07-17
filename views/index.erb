@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
   <head>
     <meta charset="utf-8" />
@@ -7,6 +7,7 @@
     <title><%= @app['name'] %></title>
     <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="lytebox/lytebox.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
 
@@ -29,7 +30,7 @@
 
     <script type="text/javascript" src="/javascripts/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
-
+    <script type="text/javascript" src="lytebox/lytebox.js"></script>
 
     <script type="text/javascript">
       function logResponse(response) {
@@ -132,14 +133,18 @@
       }(document, 'script', 'facebook-jssdk'));
     </script>
 
-    <header class="hero-unit">
-    <div style="display:inline-block;width:50%">
-      <% if @user %>
+	<div class="hero-unit">
+    	<div style="display:inline-block;float:right">
+    		<span>
+				<a href="http://www.marathonhyderabad.com/" title="Airtel Hyderabad Marathon" rel="home"><img src="http://www.marathonhyderabad.com/wp-content/themes/twentyten/images/logo.png"></a>
+			</span>
+    	</div>  	
+    <div style="padding: 30px;float:right">
+      	<% if @user %>
           <p id="picture" style="background-image: url(https://graph.facebook.com/<%= @user['id'] %>/picture?type=normal)"></p>
             <h2>Welcome, <strong><%= @user['name'] %></strong></h2>
-            <div id="">
+              <div id="">
               <p>Share this app on facebook</p>
-
                   <a href="#" class="facebook-button" id="postToWall" data-url="<%= url %>">
                     <span class="plus">Post to Wall</span>
                   </a>
@@ -151,21 +156,17 @@
                   <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Try this app to find the fellow runners for Hyderabad relay marathon">
                     <span class="apprequests">Send Requests</span>
                   </a>
-          </div>
+             </div>
       <% else %>
-        <div>
+		<div>
           <h3>Welcome to Hyderabad Marathon facebook app.</h3>
             <a href='/auth/facebook' class="fb_button fb_button_medium">
               <span class="fb_button_text">Log In</span>
             </a>
-        </div>
-
+		</div>
       <% end %>
-    	</div>
-    	<div style="display:inline-block">
-    	</div>
-    </header>
-
+    </div>
+</div>
     <% if @user %>
     <div class="well">
     <div id="span9" class="clearfix">
@@ -176,7 +177,7 @@
             <ul class="things">
               <% @teams.each do |team| %>
                 <li>
-                  <a href="#" onclick="window.open('team/<%= team['id'] %>')">                    
+                  <a href="team/<%= team['id'] %>" class="lytebox">                    
                     <%= team['name'] %>
                   </a>
                 </li>

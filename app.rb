@@ -54,20 +54,52 @@ helpers do
 
 end
 
-DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/development.db")                                                                                                       
+configure :development, :test do
+  DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite://#{Dir.pwd}/appdatabase")                                                                                                       
+end 
+
+configure :production do
+  DataMapper.setup(:default, ENV['DATABASE_URL'] || "postgres://localhost/appdatabase")                                                                                                       
+end
 
 class User
   include DataMapper::Resource
   property :id,           Serial
-  property :name,         String
-  property :facebook_id,  String
+  property :name,         String,  :required => true  
+  property :facebook_id,  String,  :required => true  
   property :updated_at,   DateTime
+  
+  has n, :teamapprovedusers
+  has n, :approvedteams, :model => 'Team', :through => :teamapprovedusers
+
+  has n, :teamjoinedusers
+  has n, :joinedteams, :model => 'Team', :through => :teamjoinedusers
 end
 
 class Team
   include DataMapper::Resource
   property :id,           Serial
-  property :name,        String
+  property :name,         String,  :required => true  
+  property :description,   Text
+  has 1,  'User', :owner
+  
+  has n, :teamapprovedusers
+  has n, :approvedusers, :model => 'User', :through => :teamapprovedusers
+
+  has n, :teamjoinedusers
+  has n, :joinedusers, :model => 'User', :through => :teamjoinedusers
+end
+
+class Teamapproveduser
+  include DataMapper::Resource
+  belongs_to :approvedteam, :model => 'Team',  :key => true
+  belongs_to :approveduser, :model => 'User',  :key => true
+end
+
+class Teamjoineduser
+  include DataMapper::Resource
+  belongs_to :joinedteam, :model => 'Team',  :key => true
+  belongs_to :joineduser, :model => 'User',  :key => true
 end
 
 # the facebook session expired! reset ours and restart the process
@@ -107,7 +139,7 @@ end
 
 # View a team
 get '/team/:id' do
-  @task = Team.get(params[:id])
+  @team = Team.get(params[:id])
   erb :team
 end
 
@@ -117,8 +149,8 @@ get "/close" do
 end
 
 
-get "/team" do
-  "<body onload='window.close();'/>"
+get "/create_team" do
+  erb :new_team 
 end
 
 
